@@ -1,0 +1,10 @@
+# Compiled binaries
+*.o
+*.out
+programa
+
+# macOS
+.DS_Store
+
+# Editor
+.vscode/
