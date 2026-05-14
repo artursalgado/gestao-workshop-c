@@ -8,61 +8,111 @@
 
 int main() {
 
-  // variaveis para guardar o login inserido pelo utilizador
-  char nomeUtilizador[15], password[10];
+  // INICIAR
+  // lista de utilizadores começa vazia
+  NoUtilizador *listaUtilizadores = NULL;
 
-  printf("*******\n");
-  printf("Nome de Utilizador: \n");
+  // admin por defeito — sempre no arranque
+  Utilizador admin = {"admin", "admin", 0};
+  registarUtilizador(&listaUtilizadores, admin);
+
+  // LOGIN
+  char nomeUtilizador[50], password[50];
+
+  system("clear");
+  printf("*******************************\n");
+  printf("  Sistema de Gestao Workshop   \n");
+  printf("*******************************\n");
+  printf("Nome de Utilizador: ");
   scanf("%s", nomeUtilizador);
-
-  printf("Palavra-passe: \n");
+  printf("Palavra-passe: ");
   scanf("%s", password);
 
-  // utilizador admin fixo (perfil 0 = admin)
-  Utilizador admin = {"admin", "admin", 0};
+  // procurar o utilizador na lista
+  Utilizador *u = procurarUtilizador(listaUtilizadores, nomeUtilizador);
 
-  // comparar dados inseridos com o admin
-  if (strcmp(nomeUtilizador, admin.username) == 0 &&
-      strcmp(password, admin.password) == 0) {
+  // se nao existir, perguntar se quer registar
+  if (u == NULL) {
+    char resposta;
+    printf("Utilizador nao encontrado. Deseja fazer o Registo? (s/n): ");
+    scanf(" %c", &resposta);
 
-    printf("Login Bem Sucedido!\n");
+    if (resposta == 's' || resposta == 'S') {
+      Utilizador novo;
+      strcpy(novo.username, nomeUtilizador);
+      strcpy(novo.password, password);
+      novo.perfil = 1; // novo utilizador e sempre participante
 
-    // lista de participantes inicializada a NULL (vazia)
-    NoParticipante *lista = NULL;
+      if (registarUtilizador(&listaUtilizadores, novo) == 0) {
+        printf("Registo bem sucedido!\n");
+        u = procurarUtilizador(listaUtilizadores, nomeUtilizador);
+      } else {
+        printf("Erro ao registar utilizador.\n");
+        return -1;
+      }
+    } else {
+      printf("A sair...\n");
+      return 0;
+    }
+  }
+
+  // verificar passwod
+  if (strcmp(u->password, password) != 0) {
+    printf("Password incorreta!\n");
+    return -1;
+  }
+
+  system("clear");
+  printf("Login bem sucedido! Bem-vindo, %s.\n", u->username);
+
+  // MENU ADMIN
+  if (u->perfil == 0) {
+
+    NoParticipante *listaParticipantes = NULL;
     int opcao = 0;
 
     do {
-      printf("**********************\n");
+      system("clear");
+      printf("\n**********************\n");
       printf("1 - Inserir Participante\n");
       printf("2 - Listar Participantes\n");
       printf("3 - Remover Participante\n");
       printf("0 - SAIR\n");
       printf("**********************\n");
-      printf("Escreva a opcao: \n");
+      printf("Opcao: ");
       scanf("%d", &opcao);
 
       switch (opcao) {
       case 1:
-        menuInserirParticipante(&lista);
+        menuInserirParticipante(&listaParticipantes);
+        printf("\nCarregue Enter para continuar...");
+        getchar(); getchar();
         break;
       case 2:
-        listarParticipante(lista);
+        listarParticipante(listaParticipantes);
+        printf("\nCarregue Enter para continuar...");
+        getchar(); getchar();
         break;
       case 3:
-        menuRemoverParticipante(&lista);
+        menuRemoverParticipante(&listaParticipantes);
+        printf("\nCarregue Enter para continuar...");
+        getchar(); getchar();
         break;
       case 0:
         printf("A sair...\n");
         break;
       default:
         printf("Opcao invalida!\n");
+        printf("\nCarregue Enter para continuar...");
+        getchar(); getchar();
         break;
       }
     } while (opcao != 0);
 
+    // MENU PARTICIPANTE
   } else {
-    printf("Erro - Nome ou Password ERRADOS!\n");
-    return -1;
+    printf("Menu de participante (em construcao)\n");
+    return 0;
   }
 
   return 0;
