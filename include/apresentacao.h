@@ -14,8 +14,12 @@ typedef struct {
 } Apresentacao;
 
 typedef struct NoApresentacao {
-  Apresentacao dados;
+  Apresentacao Apresentacao;
   struct NoApresentacao *proximo;
 } NoApresentacao;
+
+int inserirApresentacao(NoApresentacao **lista, Apresentacao a);
+void menuInserirApresentacao(NoApresentacao **lista);
+void listarApresentacoes(NoApresentacao *lista);
 
 #endif

@@ -69,14 +69,19 @@ int main() {
   if (u->perfil == 0) {
 
     NoParticipante *listaParticipantes = NULL;
+    NoApresentacao *listaApresentacoes = NULL;
     int opcao = 0;
 
     do {
       system("clear");
       printf("\n**********************\n");
+      printf("-- PARTICIPANTES --\n");
       printf("1 - Inserir Participante\n");
       printf("2 - Listar Participantes\n");
       printf("3 - Remover Participante\n");
+      printf("-- APRESENTACOES --\n");
+      printf("4 - Inserir Apresentacao\n");
+      printf("5 - Listar Apresentacoes\n");
       printf("0 - SAIR\n");
       printf("**********************\n");
       printf("Opcao: ");
@@ -85,26 +90,42 @@ int main() {
       switch (opcao) {
       case 1:
         menuInserirParticipante(&listaParticipantes);
-        printf("\nCarregue Enter para continuar...");
-        getchar(); getchar();
+        printf("\nEnter para continuar...");
+        getchar();
+        getchar();
         break;
       case 2:
         listarParticipante(listaParticipantes);
-        printf("\nCarregue Enter para continuar...");
-        getchar(); getchar();
+        printf("\nEnter para continuar...");
+        getchar();
+        getchar();
         break;
       case 3:
         menuRemoverParticipante(&listaParticipantes);
-        printf("\nCarregue Enter para continuar...");
-        getchar(); getchar();
+        printf("\nEnter para continuar...");
+        getchar();
+        getchar();
+        break;
+      case 4:
+        menuInserirApresentacao(&listaApresentacoes);
+        printf("\nEnter para continuar...");
+        getchar();
+        getchar();
+        break;
+      case 5:
+        listarApresentacoes(listaApresentacoes);
+        printf("\nEnter para continuar...");
+        getchar();
+        getchar();
         break;
       case 0:
         printf("A sair...\n");
         break;
       default:
         printf("Opcao invalida!\n");
-        printf("\nCarregue Enter para continuar...");
-        getchar(); getchar();
+        printf("\nEnter para continuar...");
+        getchar();
+        getchar();
         break;
       }
     } while (opcao != 0);
