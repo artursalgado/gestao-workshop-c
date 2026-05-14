@@ -47,7 +47,8 @@ int inserirParticipante(NoParticipante **lista, Participante p) {
   NoParticipante *novo = (NoParticipante *)malloc(sizeof(NoParticipante));
 
   // verificar se o malloc teve sucesso
-  if (novo == NULL) return -1;
+  if (novo == NULL)
+    return -1;
 
   // copiar os dados para o no
   novo->participante = p;
@@ -66,6 +67,7 @@ void listarParticipante(NoParticipante *lista) {
     printf("Nome: %s\n", atual->participante.nome);
     printf("ID: %d\n", atual->participante.id);
     printf("Instituiçao: %s\n", atual->participante.instituicao);
+    printf("**************************");
 
     atual = atual->proximo; // passar ao proximo nó "atual->proximo"
   }
