@@ -16,7 +16,9 @@ typedef struct NoParticipante {
   struct NoParticipante *proximo;
 } NoParticipante;
 
-void inserirParticipante(NoParticipante **lista, Participante p);
+void menuInserirParticipante(NoParticipante **lista);
+void menuRemoverParticipante(NoParticipante **lista);
+int inserirParticipante(NoParticipante **lista, Participante p);
 void listarParticipante(NoParticipante *lista);
 void removerParticipante(NoParticipante **lista, int id);
 
