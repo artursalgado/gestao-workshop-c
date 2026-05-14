@@ -9,8 +9,11 @@ typedef struct {
 
 // lista ligada user
 typedef struct NoUtilizador {
-  Utilizador dados;
+  Utilizador Utilizador;
   struct NoUtilizador *proximo;
 } NoUtilizador;
+
+Utilizador *procurarUtilizador(NoUtilizador *lista, char *username);
+int registarUtilizador(NoUtilizador **lista, Utilizador u);
 
 #endif
