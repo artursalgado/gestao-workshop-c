@@ -7,9 +7,17 @@ void menuInserirApresentacao(NoApresentacao **lista) {
 
   Apresentacao apresentacao;
 
+  // id automatico — incrementa a cada apresentacao inserida
+  static int contador = 1;
+  apresentacao.id = contador++;
+
+  // a data fica vazia ate ser com horario definido
+  strcpy(apresentacao.data, "sem horario definido");
+  apresentacao.num_inscritos = 0;
+
   printf("**************\n");
   printf("Escreva o Titulo da Apresentaçao: \n");
-  scanf("%s", apresentacao.titulo);
+  scanf(" %[^\n]", apresentacao.titulo);
   printf("Escreva o nome do Orador: \n");
   scanf(" %[^\n]", apresentacao.orador);
   printf("Escreva o currículo do Orador: \n");
@@ -27,7 +35,35 @@ void menuInserirApresentacao(NoApresentacao **lista) {
     scanf("%s", apresentacao.palavras_chave[i]);
   }
 
-  inserirApresentacao(lista, apresentacao);
+  if (inserirApresentacao(lista, apresentacao) == 0)
+    printf("Apresentacao inserida com sucesso! ID: %d\n", apresentacao.id);
+  else
+    printf("Erro ao inserir apresentacao!\n");
+}
+
+void menuHorarioApresentacao(NoApresentacao *lista) {
+  int id;
+
+  printf("Escreva o ID da Apresentacao a definir horario: \n");
+  scanf("%d", &id);
+
+  // percorrer a lista para encontrar a apresentacao com esse id
+  NoApresentacao *atual = lista;
+  while (atual != NULL && atual->Apresentacao.id != id) {
+    atual = atual->proximo; // passar ao proximo no
+  }
+
+  // se nao encontrou
+  if (atual == NULL) {
+    printf("Erro - ID nao encontrado!\n");
+    return;
+  }
+
+  // pedir a data/hora ao utilizador e guardar na apresentacao
+  printf("Escreva a data e hora (2025-06-10 14:00): \n");
+  scanf(" %[^\n]", atual->Apresentacao.data);
+
+  printf("horario definido com sucesso!\n");
 }
 
 void listarApresentacoes(NoApresentacao *lista) {
@@ -54,6 +90,46 @@ void listarApresentacoes(NoApresentacao *lista) {
     printf("\n");
     atual = atual->proximo;
   }
+}
+
+void menuRemoverApresentacao(NoApresentacao **lista) {
+  int id;
+
+  printf("Escreva o ID da Apresentacao que deseja eliminar: \n");
+  scanf("%d", &id);
+
+  // enviamos o id e a funcao trabalha
+  removerApresentacao(lista, id);
+}
+
+void removerApresentacao(NoApresentacao **lista, int id) {
+  // variaveis temp para percorrer a lista
+  NoApresentacao *atual = *lista;
+  NoApresentacao *anterior = NULL;
+
+  // percorre a lista enquanto nao encontrar o id ou chegar ao fim
+  while (atual != NULL && atual->Apresentacao.id != id) {
+    anterior = atual;
+    atual = atual->proximo; // passar ao proximo no
+  }
+
+  // se chegou ao fim sem encontrar
+  if (atual == NULL) {
+    printf("Erro - ID nao encontrado!\n");
+    return;
+  }
+
+  // se o no a apagar e o primeiro da lista
+  if (anterior == NULL) {
+    *lista = atual->proximo; // a cabeca passa a ser o proximo
+  } else {
+    // se esta a meio ou no fim — o anterior salta por cima do atual
+    anterior->proximo = atual->proximo;
+  }
+
+  // libertar a memoria do no removido
+  free(atual);
+  printf("Apresentacao removida com sucesso!\n");
 }
 
 int inserirApresentacao(NoApresentacao **lista, Apresentacao a) {

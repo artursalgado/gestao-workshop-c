@@ -9,7 +9,7 @@ typedef struct {
   char palavras_chave[5][50];
   int duracao; // em minutos
   float preco;
-  char data[20]; // data/hora do escalonamento
+  char data[30]; // data/hora do horario
   int num_inscritos;
 } Apresentacao;
 
@@ -21,5 +21,8 @@ typedef struct NoApresentacao {
 int inserirApresentacao(NoApresentacao **lista, Apresentacao a);
 void menuInserirApresentacao(NoApresentacao **lista);
 void listarApresentacoes(NoApresentacao *lista);
+void menuRemoverApresentacao(NoApresentacao **lista);
+void removerApresentacao(NoApresentacao **lista, int id);
+void menuHorarioApresentacao(NoApresentacao *lista);
 
 #endif

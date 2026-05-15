@@ -2,19 +2,28 @@
 #include "../include/participante.h"
 #include "../include/utilizador.h"
 #include "../include/workshop.h"
+#include "../include/ficheiros.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 int main() {
 
-  // INICIAR
-  // lista de utilizadores começa vazia
+  // INICIAR — listas todas a NULL (vazias)
   NoUtilizador *listaUtilizadores = NULL;
+  NoParticipante *listaParticipantes = NULL;
+  NoApresentacao *listaApresentacoes = NULL;
 
-  // admin por defeito — sempre no arranque
-  Utilizador admin = {"admin", "admin", 0};
-  registarUtilizador(&listaUtilizadores, admin);
+  // carregar dados guardados anteriormente
+  carregarUtilizadores(&listaUtilizadores);
+  carregarParticipantes(&listaParticipantes);
+  carregarApresentacoes(&listaApresentacoes);
+
+  // admin por defeito — so regista se ainda nao existir
+  if (procurarUtilizador(listaUtilizadores, "admin") == NULL) {
+    Utilizador admin = {"admin", "admin", 0};
+    registarUtilizador(&listaUtilizadores, admin);
+  }
 
   // LOGIN
   char nomeUtilizador[50], password[50];
@@ -68,8 +77,6 @@ int main() {
   // MENU ADMIN
   if (u->perfil == 0) {
 
-    NoParticipante *listaParticipantes = NULL;
-    NoApresentacao *listaApresentacoes = NULL;
     int opcao = 0;
 
     do {
@@ -82,6 +89,8 @@ int main() {
       printf("-- APRESENTACOES --\n");
       printf("4 - Inserir Apresentacao\n");
       printf("5 - Listar Apresentacoes\n");
+      printf("6 - Remover Apresentacao\n");
+      printf("7 - Definir Horario Apresentacao\n");
       printf("0 - SAIR\n");
       printf("**********************\n");
       printf("Opcao: ");
@@ -107,12 +116,65 @@ int main() {
         getchar();
         break;
       case 4:
+        while(getchar() != '\n'); // limpar o buffer antes de entrar no menu
         menuInserirApresentacao(&listaApresentacoes);
         printf("\nEnter para continuar...");
         getchar();
         getchar();
         break;
       case 5:
+        listarApresentacoes(listaApresentacoes);
+        printf("\nEnter para continuar...");
+        getchar();
+        getchar();
+        break;
+      case 6:
+        menuRemoverApresentacao(&listaApresentacoes);
+        printf("\nEnter para continuar...");
+        getchar();
+        getchar();
+        break;
+      case 7:
+        menuHorarioApresentacao(listaApresentacoes);
+        printf("\nEnter para continuar...");
+        getchar();
+        getchar();
+        break;
+      case 0:
+        // guardar tudo antes de sair
+        guardarParticipantes(listaParticipantes);
+        guardarApresentacoes(listaApresentacoes);
+        guardarUtilizadores(listaUtilizadores);
+        printf("Dados guardados. A sair...\n");
+        break;
+      default:
+        printf("Opcao invalida!\n");
+        printf("\nEnter para continuar...");
+        getchar();
+        getchar();
+        break;
+      }
+    } while (opcao != 0);
+
+  // MENU PARTICIPANTE
+  } else {
+
+    // o participante so consegue ver as apresentacoes — nao pode alterar nada
+    int opcao = 0;
+
+    do {
+      system("clear");
+      printf("\n**********************\n");
+      printf("Bem-vindo, %s!\n", u->username);
+      printf("-- AGENDA --\n");
+      printf("1 - Ver todas as Apresentacoes\n");
+      printf("0 - SAIR\n");
+      printf("**********************\n");
+      printf("Opcao: ");
+      scanf("%d", &opcao);
+
+      switch (opcao) {
+      case 1:
         listarApresentacoes(listaApresentacoes);
         printf("\nEnter para continuar...");
         getchar();
@@ -129,11 +191,6 @@ int main() {
         break;
       }
     } while (opcao != 0);
-
-    // MENU PARTICIPANTE
-  } else {
-    printf("Menu de participante (em construcao)\n");
-    return 0;
   }
 
   return 0;

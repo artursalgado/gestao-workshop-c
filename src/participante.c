@@ -9,7 +9,7 @@ void menuInserirParticipante(NoParticipante **lista) {
   static int contador = 1;
 
   printf("Insira o nome do Participante: \n");
-  scanf("%s", p.nome);
+  scanf(" %[^\n]", p.nome);
 
   printf("Insira o nome da Instituiçao: \n");
   scanf("%s", p.instituicao);
