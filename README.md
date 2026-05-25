@@ -30,7 +30,6 @@ Sistema em linguagem C para gerir os participantes e apresentações de um works
 ├── src/              # Código fonte (.c)
 │   ├── main.c
 │   └── participante.c
-├── data/             # Ficheiros binários (persistência)
 └── relatorios/       # Ficheiros de texto (relatórios)
 ```
 

@@ -7,7 +7,7 @@ void menuInserirApresentacao(NoApresentacao **lista) {
 
   Apresentacao apresentacao;
 
-  // id automatico — incrementa a cada apresentacao inserida
+  // id automatico — incrementa a cada apresentacao adicionada
   static int contador = 1;
   apresentacao.id = contador++;
 
@@ -59,7 +59,7 @@ void menuHorarioApresentacao(NoApresentacao *lista) {
     return;
   }
 
-  // pedir a data/hora ao utilizador e guardar na apresentacao
+  // pedir a data/hora ao utilizador e guardar
   printf("Escreva a data e hora (2025-06-10 14:00): \n");
   scanf(" %[^\n]", atual->Apresentacao.data);
 
