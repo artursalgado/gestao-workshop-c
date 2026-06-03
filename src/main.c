@@ -1,8 +1,8 @@
 #include "../include/apresentacao.h"
+#include "../include/ficheiros.h"
 #include "../include/participante.h"
 #include "../include/utilizador.h"
 #include "../include/workshop.h"
-#include "../include/ficheiros.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -29,9 +29,9 @@ int main() {
   char nomeUtilizador[50], password[50];
 
   system("clear");
-  printf("*******************************\n");
-  printf("  Sistema de Gestao Workshop   \n");
-  printf("*******************************\n");
+  printf("***********************************************\n");
+  printf("  Sistema de Gestao Workshop by Artur Salgado  \n");
+  printf("***********************************************\n");
   printf("Nome de Utilizador: ");
   scanf("%s", nomeUtilizador);
   printf("Palavra-passe: ");
@@ -116,7 +116,8 @@ int main() {
         getchar();
         break;
       case 4:
-        while(getchar() != '\n'); // limpar o buffer antes de entrar no menu
+        while (getchar() != '\n')
+          ; // limpar o buffer antes de entrar no menu
         menuInserirApresentacao(&listaApresentacoes);
         printf("\nEnter para continuar...");
         getchar();
@@ -156,7 +157,7 @@ int main() {
       }
     } while (opcao != 0);
 
-  // MENU PARTICIPANTE
+    // MENU PARTICIPANTE
   } else {
 
     // o participante so consegue ver as apresentacoes — nao pode alterar nada
