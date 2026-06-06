@@ -1,0 +1,436 @@
+\documentclass[12pt,a4paper]{article}
+
+% --- pacotes ---
+\usepackage[utf8]{inputenc}
+\usepackage[portuguese]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{float}
+
+\geometry{margin=2.5cm}
+
+% --- estilo do codigo C ---
+\lstdefinestyle{cstyle}{
+  language=C,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{gray}\itshape,
+  stringstyle=\color{red},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  backgroundcolor=\color{gray!10},
+  tabsize=2
+}
+
+% --- cabecalho e rodape ---
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{Programação I — 2025/2026}
+\lhead{Sistema de Gestão de Workshop}
+\rfoot{\thepage}
+
+% --- titulo ---
+\title{
+  \vspace{-1cm}
+  \Large \textbf{Escola Superior de Tecnologia e Gestão — IPVC} \\[0.5cm]
+  \large Programação I — Turno PL1 \\[0.3cm]
+  \rule{\linewidth}{0.5pt} \\[0.5cm]
+  \LARGE \textbf{Sistema de Gestão de Participações num Workshop} \\[0.3cm]
+  \rule{\linewidth}{0.5pt} \\[0.5cm]
+  \large Relatório Final
+}
+\author{
+  Artur Salgado \\ EI33385
+}
+\date{Junho de 2026}
+
+% =============================================================
+\begin{document}
+% =============================================================
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+% --- indice ---
+\tableofcontents
+\newpage
+
+% =============================================================
+\section{Introdução}
+% =============================================================
+
+[REESCREVE ESTA SECÇÃO COM AS TUAS PRÓPRIAS PALAVRAS]
+
+O presente relatório descreve o desenvolvimento de um sistema em linguagem C para gerir as participações num workshop organizado pela ESTG. O workshop contempla um total de 16 apresentações e permite dois tipos de inscrição: inscrição aberta, que dá acesso a todo o evento, e inscrição específica, em que o participante escolhe as apresentações a que quer assistir, pagando a soma dos respetivos preços.
+
+O sistema foi desenvolvido de acordo com os requisitos definidos no enunciado e aplica os conceitos lecionados na unidade curricular de Programação I, nomeadamente: listas ligadas, algoritmos de ordenação e pesquisa, e persistência de dados através de ficheiros binários e de texto.
+
+% =============================================================
+\section{Estruturas de Dados}
+% =============================================================
+
+\subsection{Justificação do uso de Listas Ligadas}
+
+[REESCREVE ESTA SECÇÃO COM AS TUAS PRÓPRIAS PALAVRAS]
+
+Optou-se pelo uso de listas ligadas para gerir os dados em memória durante a execução do programa. Esta escolha justifica-se pela flexibilidade que as listas ligadas oferecem: ao contrário dos arrays, não é necessário definir um tamanho fixo à partida, o que permite inserir e remover elementos de forma eficiente sem desperdiçar memória.
+
+Para cada entidade do sistema foi criado um nó que encapsula os dados e um ponteiro para o elemento seguinte da lista.
+
+\subsection{Struct Apresentacao}
+
+\begin{lstlisting}[style=cstyle, caption={Struct Apresentacao em apresentacao.h}]
+typedef struct {
+  int id;
+  char titulo[100];
+  char orador[100];
+  char curriculo[500];
+  char palavras_chave[5][50];
+  int duracao;       // em minutos
+  float preco;
+  char data[30];     // data/hora do horario
+  int num_inscritos;
+} Apresentacao;
+
+typedef struct NoApresentacao {
+  Apresentacao Apresentacao;
+  struct NoApresentacao *proximo;
+} NoApresentacao;
+\end{lstlisting}
+
+\subsection{Struct Participante}
+
+\begin{lstlisting}[style=cstyle, caption={Struct Participante em participante.h}]
+typedef struct {
+  int id;
+  char nome[100];
+  char instituicao[100];
+  int tipo_inscricao;      // 0 = aberta, 1 = especifica
+  int apresentacoes[16];   // ids das apresentacoes escolhidas
+  int num_apresentacoes;
+  float total_pagar;       // calculado automaticamente
+} Participante;
+\end{lstlisting}
+
+\subsection{Struct Utilizador}
+
+\begin{lstlisting}[style=cstyle, caption={Struct Utilizador em utilizador.h}]
+typedef struct {
+  char username[50];
+  char password[50];
+  int perfil; // 0 = admin, 1 = participante
+} Utilizador;
+\end{lstlisting}
+
+\subsection{Struct Workshop}
+
+\begin{lstlisting}[style=cstyle, caption={Struct Workshop em workshop.h}]
+typedef struct {
+  char data_inicio[20];
+  char data_fim[20];
+  float preco_inscricao_aberta;
+} Workshop;
+\end{lstlisting}
+
+% =============================================================
+\section{Organização do Código}
+% =============================================================
+
+\subsection{Estrutura de ficheiros}
+
+O projeto está organizado da seguinte forma:
+
+\begin{verbatim}
+ProjPL1_EI33385/
+├── include/           # Headers (.h) - structs e prototipos
+│   ├── apresentacao.h
+│   ├── participante.h
+│   ├── utilizador.h
+│   ├── workshop.h
+│   └── ficheiros.h
+├── src/               # Codigo fonte (.c)
+│   ├── main.c
+│   ├── apresentacao.c
+│   ├── participante.c
+│   ├── utilizador.c
+│   ├── workshop.c
+│   └── ficheiros.c
+├── relatorios/        # Ficheiros de texto (relatorios)
+└── relatorio_final/   # Relatorio PDF
+\end{verbatim}
+
+\subsection{Separação por módulos}
+
+O código foi dividido em módulos, cada um com o seu ficheiro \texttt{.h} (declarações) e \texttt{.c} (implementação):
+
+\begin{table}[H]
+\centering
+\begin{tabular}{ll}
+\toprule
+\textbf{Módulo} & \textbf{Responsabilidade} \\
+\midrule
+\texttt{apresentacao} & Gestão das apresentações \\
+\texttt{participante} & Gestão dos participantes e inscrições \\
+\texttt{utilizador} & Autenticação e registo de utilizadores \\
+\texttt{workshop} & Configuração do workshop \\
+\texttt{ficheiros} & Persistência de dados (leitura/escrita) \\
+\texttt{main} & Menu principal e fluxo do programa \\
+\bottomrule
+\end{tabular}
+\caption{Módulos do sistema}
+\end{table}
+
+% =============================================================
+\section{Funcionalidades Implementadas}
+% =============================================================
+
+\subsection{Autenticação}
+
+[REESCREVE COM AS TUAS PALAVRAS]
+
+No arranque, o programa pede o nome de utilizador e a password. O utilizador é procurado na lista de utilizadores carregada do ficheiro binário. Se não existir, é perguntado se pretende registar-se. Por defeito, existe sempre um utilizador \textit{admin} com a password \textit{admin} e perfil de administrador.
+
+\subsection{Menu Administrador}
+
+O administrador tem acesso às seguintes funcionalidades:
+
+\subsubsection{Gestão de Participantes}
+\begin{itemize}
+  \item Inserir participante com tipo de inscrição (aberta ou específica)
+  \item Listar todos os participantes
+  \item Remover participante por ID
+  \item Ver informação de um participante específico
+  \item Listar participantes com inscrição aberta
+  \item Listar participantes de uma apresentação
+  \item Somar o total de todas as inscrições
+\end{itemize}
+
+\subsubsection{Gestão de Apresentações}
+\begin{itemize}
+  \item Inserir, remover e alterar apresentações
+  \item Listar todas as apresentações
+  \item Definir data/hora (escalonar) de uma apresentação
+  \item Ordenar apresentações por título (bubble sort)
+  \item Listar apresentações por data
+  \item Saber qual a apresentação com mais inscrições
+  \item Imprimir o programa do workshop para ficheiro de texto
+\end{itemize}
+
+\subsection{Menu Participante}
+
+\begin{itemize}
+  \item Consultar a sua inscrição
+  \item Ver a agenda do workshop (por data)
+  \item Ver todas as apresentações
+  \item Consultar informação sobre uma apresentação específica
+\end{itemize}
+
+% =============================================================
+\section{Algoritmos Relevantes}
+% =============================================================
+
+\subsection{Algoritmo de Ordenação — Bubble Sort}
+
+[REESCREVE COM AS TUAS PALAVRAS]
+
+Para ordenar as apresentações por título, foi implementado o algoritmo Bubble Sort. O algoritmo percorre a lista repetidamente, comparando os títulos de nós adjacentes com a função \texttt{strcmp}, e trocando os dados dos nós quando necessário. O processo repete-se até não haver mais trocas.
+
+A principal vantagem desta abordagem é a sua simplicidade. Para uma lista de no máximo 16 apresentações, a eficiência não é um fator crítico.
+
+\begin{lstlisting}[style=cstyle, caption={Bubble Sort por título}]
+do {
+  trocou = 0;
+  atual = lista;
+  while (atual->proximo != NULL) {
+    if (strcmp(atual->Apresentacao.titulo,
+               atual->proximo->Apresentacao.titulo) > 0) {
+      // trocar os dados dos dois nos
+      Apresentacao temp = atual->Apresentacao;
+      atual->Apresentacao = atual->proximo->Apresentacao;
+      atual->proximo->Apresentacao = temp;
+      trocou = 1;
+    }
+    atual = atual->proximo;
+  }
+} while (trocou);
+\end{lstlisting}
+
+O mesmo algoritmo é aplicado para ordenar por data. Como o formato usado é \texttt{YYYY-MM-DD HH:MM}, a comparação direta de strings com \texttt{strcmp} produz a ordenação cronológica correta.
+
+\subsection{Cálculo do Total a Pagar}
+
+[REESCREVE COM AS TUAS PALAVRAS]
+
+Quando o administrador inscreve um participante com inscrição específica, o sistema percorre as apresentações escolhidas e soma os respetivos preços:
+
+\begin{lstlisting}[style=cstyle, caption={Cálculo do total na inscrição específica}]
+NoApresentacao *atual = listaApresentacoes;
+while (atual != NULL && atual->Apresentacao.id != id) {
+  atual = atual->proximo;
+}
+if (atual != NULL) {
+  p.apresentacoes[p.num_apresentacoes++] = id;
+  p.total_pagar += atual->Apresentacao.preco;
+  atual->Apresentacao.num_inscritos++;
+}
+\end{lstlisting}
+
+\subsection{Persistência com Ficheiros Binários}
+
+[REESCREVE COM AS TUAS PALAVRAS]
+
+Para guardar e carregar os dados entre sessões, foram utilizadas as funções \texttt{fwrite} e \texttt{fread} da biblioteca padrão do C. Cada struct é escrita diretamente em binário, byte a byte. Na leitura, os dados são reconstruídos na lista ligada.
+
+\begin{lstlisting}[style=cstyle, caption={Guardar participantes em ficheiro binário}]
+while (atual != NULL) {
+  fwrite(&atual->participante, sizeof(Participante), 1, fp);
+  atual = atual->proximo;
+}
+\end{lstlisting}
+
+\begin{lstlisting}[style=cstyle, caption={Carregar participantes do ficheiro}]
+while (fread(&p, sizeof(Participante), 1, fp) == 1) {
+  NoParticipante *novo = malloc(sizeof(NoParticipante));
+  novo->participante = p;
+  novo->proximo = *lista;
+  *lista = novo;
+}
+\end{lstlisting}
+
+% =============================================================
+\section{Problemas Encontrados e Soluções}
+% =============================================================
+
+[REESCREVE TODA ESTA SECÇÃO COM AS TUAS PALAVRAS E EXPERIÊNCIAS REAIS]
+
+\subsection{Buffer Overflow na String de Data}
+
+Durante o desenvolvimento, o programa apresentava um crash (trace trap) ao tentar inserir uma apresentação. Após análise, verificou-se que o campo \texttt{data[20]} era demasiado pequeno para a string \texttt{"sem horario definido"} (21 caracteres com o terminador). A solução foi aumentar o campo para \texttt{data[30]}.
+
+\subsection{Problema com Leitura de Strings com Espaços}
+
+Ao usar \texttt{scanf("\%s")} para ler o nome do participante, apenas a primeira palavra era lida. Por exemplo, ao escrever "Artur Salgado", apenas "Artur" era guardado. A solução foi usar \texttt{scanf(" \%[{\textasciicircum}\textbackslash n]")} que lê até ao fim da linha, incluindo espaços.
+
+\subsection{Buffer do Terminal entre Leituras}
+
+Após ler um inteiro com \texttt{scanf("\%d")}, o caractere \texttt{\textbackslash n} ficava no buffer e era lido pela próxima chamada. A solução foi limpar o buffer com \texttt{while(getchar() != '\textbackslash n')} antes de ler strings longas no menu de inserção de apresentações.
+
+% =============================================================
+\section{Conclusão}
+% =============================================================
+
+[REESCREVE COM AS TUAS PALAVRAS]
+
+O sistema desenvolvido cumpre todos os requisitos definidos no enunciado. Foram aplicados os conceitos lecionados nas aulas: listas ligadas para gestão de dados em memória, algoritmos de ordenação (bubble sort) e pesquisa, ficheiros binários para persistência permanente e ficheiros de texto para relatórios.
+
+O projeto permitiu consolidar os conhecimentos de programação em C, nomeadamente a gestão de memória dinâmica com \texttt{malloc} e \texttt{free}, a utilização de structs e ponteiros, e a organização modular do código.
+
+% =============================================================
+\appendix
+\section{Manual do Utilizador}
+% =============================================================
+
+\subsection{Compilação e Execução}
+
+Para compilar o programa, executar o seguinte comando na pasta raiz do projeto:
+
+\begin{verbatim}
+gcc src/*.c -I include/ -o programa
+\end{verbatim}
+
+Para executar:
+
+\begin{verbatim}
+./programa
+\end{verbatim}
+
+\subsection{Login}
+
+Ao iniciar o programa, é pedido o nome de utilizador e a password.
+
+\begin{itemize}
+  \item \textbf{Admin por defeito:} utilizador \texttt{admin}, password \texttt{admin}
+  \item Se o utilizador não existir, o programa pergunta se pretende registar-se
+  \item Um novo utilizador registado tem sempre perfil de \textit{participante}
+\end{itemize}
+
+\subsection{Menu Administrador}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{cl}
+\toprule
+\textbf{Opção} & \textbf{Descrição} \\
+\midrule
+1  & Inserir participante (com tipo de inscrição) \\
+2  & Listar todos os participantes \\
+3  & Remover participante por ID \\
+4  & Ver informação de um participante específico \\
+5  & Listar participantes com inscrição aberta \\
+6  & Listar participantes de uma apresentação \\
+7  & Somar total de todas as inscrições \\
+8  & Inserir nova apresentação \\
+9  & Listar todas as apresentações \\
+10 & Remover apresentação por ID \\
+11 & Alterar dados de uma apresentação \\
+12 & Definir data/hora de uma apresentação \\
+13 & Ordenar apresentações por título \\
+14 & Listar apresentações por data \\
+15 & Apresentação com mais inscrições \\
+16 & Imprimir programa para ficheiro de texto \\
+17 & Configurar datas e preço do workshop \\
+0  & Sair (guarda todos os dados automaticamente) \\
+\bottomrule
+\end{tabular}
+\caption{Opções do menu administrador}
+\end{table}
+
+\subsection{Menu Participante}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{cl}
+\toprule
+\textbf{Opção} & \textbf{Descrição} \\
+\midrule
+1 & Consultar a minha inscrição \\
+2 & Ver agenda do workshop (por data) \\
+3 & Ver todas as apresentações \\
+4 & Consultar informação sobre uma apresentação \\
+0 & Sair \\
+\bottomrule
+\end{tabular}
+\caption{Opções do menu participante}
+\end{table}
+
+\subsection{Persistência de Dados}
+
+Os dados são guardados automaticamente ao sair pelo menu do administrador (opção 0). São criados os seguintes ficheiros na pasta de execução do programa:
+
+\begin{itemize}
+  \item \texttt{PARTICIPANTES} — dados dos participantes (binário)
+  \item \texttt{APRESENTACOES} — dados das apresentações (binário)
+  \item \texttt{UTILIZADORES} — dados dos utilizadores (binário)
+  \item \texttt{WORKSHOP} — configuração do workshop (binário)
+  \item \texttt{relatorios/programa\_workshop.txt} — programa do workshop (texto)
+\end{itemize}
+
+\subsection{Tipo de Inscrição}
+
+Ao inserir um participante (opção 1 do admin):
+\begin{itemize}
+  \item \textbf{0 — Inscrição Aberta:} acesso total ao workshop, paga o preço configurado em "Configurar Workshop"
+  \item \textbf{1 — Inscrição Específica:} escolhe as apresentações pelos IDs (são listadas automaticamente), o total é a soma dos preços das apresentações escolhidas
+\end{itemize}
+
+\end{document}

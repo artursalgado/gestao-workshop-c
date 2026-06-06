@@ -13,11 +13,13 @@ int main() {
   NoUtilizador *listaUtilizadores = NULL;
   NoParticipante *listaParticipantes = NULL;
   NoApresentacao *listaApresentacoes = NULL;
+  Workshop workshop = {"", "", 0.0}; // dados do workshop (datas e preco aberto)
 
   // carregar dados guardados anteriormente
   carregarUtilizadores(&listaUtilizadores);
   carregarParticipantes(&listaParticipantes);
   carregarApresentacoes(&listaApresentacoes);
+  carregarWorkshop(&workshop);
 
   // admin por defeito — so regista se ainda nao existir
   if (procurarUtilizador(listaUtilizadores, "admin") == NULL) {
@@ -30,7 +32,7 @@ int main() {
 
   system("clear");
   printf("***********************************************\n");
-  printf("  Sistema de Gestao Workshop by Artur Salgado  \n");
+  printf("  Sistema de Gestao Workshop - ESTG IPVC      \n");
   printf("***********************************************\n");
   printf("Nome de Utilizador: ");
   scanf("%s", nomeUtilizador);
@@ -65,14 +67,14 @@ int main() {
     }
   }
 
-  // verificar passwod
+  // verificar password
   if (strcmp(u->password, password) != 0) {
     printf("Password incorreta!\n");
     return -1;
   }
 
   system("clear");
-  printf("Login bem sucedido! Bem-vindo, %s.\n", u->username);
+  printf("Bem-vindo, %s!\n", u->username);
 
   // MENU ADMIN
   if (u->perfil == 0) {
@@ -81,114 +83,161 @@ int main() {
 
     do {
       system("clear");
-      printf("\n**********************\n");
-      printf("-- PARTICIPANTES --\n");
-      printf("1 - Inserir Participante\n");
-      printf("2 - Listar Participantes\n");
-      printf("3 - Remover Participante\n");
-      printf("-- APRESENTACOES --\n");
-      printf("4 - Inserir Apresentacao\n");
-      printf("5 - Listar Apresentacoes\n");
-      printf("6 - Remover Apresentacao\n");
-      printf("7 - Definir Horario Apresentacao\n");
-      printf("0 - SAIR\n");
-      printf("**********************\n");
+      printf("\n======================\n");
+      printf("--- PARTICIPANTES ---\n");
+      printf("1  - Inserir Participante\n");
+      printf("2  - Listar Participantes\n");
+      printf("3  - Remover Participante\n");
+      printf("4  - Ver Participante Especifico\n");
+      printf("5  - Participantes Inscricao Aberta\n");
+      printf("6  - Participantes de uma Apresentacao\n");
+      printf("7  - Total das Inscricoes\n");
+      printf("--- APRESENTACOES ---\n");
+      printf("8  - Inserir Apresentacao\n");
+      printf("9  - Listar Apresentacoes\n");
+      printf("10 - Remover Apresentacao\n");
+      printf("11 - Alterar Apresentacao\n");
+      printf("12 - Definir Horario\n");
+      printf("13 - Ordenar por Titulo\n");
+      printf("14 - Listar por Data\n");
+      printf("15 - Apresentacao com mais Inscricoes\n");
+      printf("16 - Imprimir Programa para Ficheiro\n");
+      printf("--- WORKSHOP ---\n");
+      printf("17 - Configurar Workshop\n");
+      printf("======================\n");
+      printf("0  - SAIR\n");
+      printf("======================\n");
       printf("Opcao: ");
       scanf("%d", &opcao);
 
       switch (opcao) {
       case 1:
-        menuInserirParticipante(&listaParticipantes);
-        printf("\nEnter para continuar...");
-        getchar();
-        getchar();
+        menuInserirParticipante(&listaParticipantes, listaApresentacoes, workshop.preco_inscricao_aberta);
+        printf("\nEnter para continuar..."); getchar(); getchar();
         break;
       case 2:
         listarParticipante(listaParticipantes);
-        printf("\nEnter para continuar...");
-        getchar();
-        getchar();
+        printf("\nEnter para continuar..."); getchar(); getchar();
         break;
       case 3:
         menuRemoverParticipante(&listaParticipantes);
-        printf("\nEnter para continuar...");
-        getchar();
-        getchar();
+        printf("\nEnter para continuar..."); getchar(); getchar();
         break;
       case 4:
-        while (getchar() != '\n')
-          ; // limpar o buffer antes de entrar no menu
-        menuInserirApresentacao(&listaApresentacoes);
-        printf("\nEnter para continuar...");
-        getchar();
-        getchar();
+        listarParticipanteEspecifico(listaParticipantes);
+        printf("\nEnter para continuar..."); getchar(); getchar();
         break;
       case 5:
-        listarApresentacoes(listaApresentacoes);
-        printf("\nEnter para continuar...");
-        getchar();
-        getchar();
+        listarParticipantesInscricaoAberta(listaParticipantes);
+        printf("\nEnter para continuar..."); getchar(); getchar();
         break;
       case 6:
-        menuRemoverApresentacao(&listaApresentacoes);
-        printf("\nEnter para continuar...");
-        getchar();
-        getchar();
+        listarParticipantesApresentacao(listaParticipantes);
+        printf("\nEnter para continuar..."); getchar(); getchar();
         break;
       case 7:
+        somarTotalInscricoes(listaParticipantes);
+        printf("\nEnter para continuar..."); getchar(); getchar();
+        break;
+      case 8:
+        while (getchar() != '\n'); // limpar o buffer antes do menu
+        menuInserirApresentacao(&listaApresentacoes);
+        printf("\nEnter para continuar..."); getchar(); getchar();
+        break;
+      case 9:
+        listarApresentacoes(listaApresentacoes);
+        printf("\nEnter para continuar..."); getchar(); getchar();
+        break;
+      case 10:
+        menuRemoverApresentacao(&listaApresentacoes);
+        printf("\nEnter para continuar..."); getchar(); getchar();
+        break;
+      case 11:
+        menuAlterarApresentacao(listaApresentacoes);
+        printf("\nEnter para continuar..."); getchar(); getchar();
+        break;
+      case 12:
         menuHorarioApresentacao(listaApresentacoes);
-        printf("\nEnter para continuar...");
-        getchar();
-        getchar();
+        printf("\nEnter para continuar..."); getchar(); getchar();
+        break;
+      case 13:
+        ordenarApresentacoesTitulo(listaApresentacoes);
+        printf("\nEnter para continuar..."); getchar(); getchar();
+        break;
+      case 14:
+        listarApresentacoesPorData(listaApresentacoes);
+        printf("\nEnter para continuar..."); getchar(); getchar();
+        break;
+      case 15:
+        apresentacaoMaisInscricoes(listaApresentacoes);
+        printf("\nEnter para continuar..."); getchar(); getchar();
+        break;
+      case 16:
+        imprimirProgramaWorkshop(listaApresentacoes);
+        printf("\nEnter para continuar..."); getchar(); getchar();
+        break;
+      case 17:
+        configurarWorkshop(&workshop);
+        printf("\nEnter para continuar..."); getchar(); getchar();
         break;
       case 0:
         // guardar tudo antes de sair
         guardarParticipantes(listaParticipantes);
         guardarApresentacoes(listaApresentacoes);
         guardarUtilizadores(listaUtilizadores);
+        guardarWorkshop(&workshop);
         printf("Dados guardados. A sair...\n");
         break;
       default:
         printf("Opcao invalida!\n");
-        printf("\nEnter para continuar...");
-        getchar();
-        getchar();
+        printf("\nEnter para continuar..."); getchar(); getchar();
         break;
       }
     } while (opcao != 0);
 
-    // MENU PARTICIPANTE
+  // MENU PARTICIPANTE
   } else {
 
-    // o participante so consegue ver as apresentacoes — nao pode alterar nada
     int opcao = 0;
 
     do {
       system("clear");
-      printf("\n**********************\n");
+      printf("\n======================\n");
       printf("Bem-vindo, %s!\n", u->username);
-      printf("-- AGENDA --\n");
-      printf("1 - Ver todas as Apresentacoes\n");
+      printf("--- AGENDA ---\n");
+      printf("1 - Consultar a minha inscricao\n");
+      printf("2 - Agenda do workshop (por data)\n");
+      printf("3 - Ver todas as apresentacoes\n");
+      printf("4 - Consultar uma apresentacao\n");
       printf("0 - SAIR\n");
-      printf("**********************\n");
+      printf("======================\n");
       printf("Opcao: ");
       scanf("%d", &opcao);
 
       switch (opcao) {
       case 1:
+        // procura a inscricao pelo username do participante
+        consultarInscricao(listaParticipantes, u->username);
+        printf("\nEnter para continuar..."); getchar(); getchar();
+        break;
+      case 2:
+        listarApresentacoesPorData(listaApresentacoes);
+        printf("\nEnter para continuar..."); getchar(); getchar();
+        break;
+      case 3:
         listarApresentacoes(listaApresentacoes);
-        printf("\nEnter para continuar...");
-        getchar();
-        getchar();
+        printf("\nEnter para continuar..."); getchar(); getchar();
+        break;
+      case 4:
+        consultarApresentacaoEspecifica(listaApresentacoes);
+        printf("\nEnter para continuar..."); getchar(); getchar();
         break;
       case 0:
         printf("A sair...\n");
         break;
       default:
         printf("Opcao invalida!\n");
-        printf("\nEnter para continuar...");
-        getchar();
-        getchar();
+        printf("\nEnter para continuar..."); getchar(); getchar();
         break;
       }
     } while (opcao != 0);

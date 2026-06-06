@@ -4,7 +4,10 @@
 typedef struct {
   char data_inicio[20];
   char data_fim[20];
-  float preco_inscricao_aberta;
+  float preco_inscricao_aberta; // preco do bilhete aberto
 } Workshop;
+
+// configurar os dados do workshop
+void configurarWorkshop(Workshop *w);
 
 #endif

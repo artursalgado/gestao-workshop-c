@@ -125,3 +125,27 @@ void carregarUtilizadores(NoUtilizador **lista) {
 
   fclose(fp);
 }
+
+// WORKSHOP
+
+void guardarWorkshop(Workshop *w) {
+  // guarda os dados do workshop num ficheiro binario
+  FILE *fp = fopen("WORKSHOP", "wb");
+  if (fp == NULL) {
+    printf("Erro ao guardar workshop!\n");
+    return;
+  }
+
+  fwrite(w, sizeof(Workshop), 1, fp);
+  fclose(fp);
+}
+
+void carregarWorkshop(Workshop *w) {
+  // carrega os dados do workshop do ficheiro
+  FILE *fp = fopen("WORKSHOP", "rb");
+  if (fp == NULL)
+    return; // se nao existir ainda, nao ha problema
+
+  fread(w, sizeof(Workshop), 1, fp);
+  fclose(fp);
+}
